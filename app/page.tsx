@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "../lib/supabase";
+import BusinessBuilder from "../components/BusinessBuilder";
 
 const modules = [
   { name: "Universal Business Builder", icon: "🏢", detail: "Form any legal business, research filings, permits, licenses and launch requirements.", steps: ["Research jurisdiction and entity type", "Prepare documents and review requirements", "Request approval before any submission"] },
@@ -39,7 +40,7 @@ export default function Home() {
       <div className="eyebrow">System prototype · integrations not connected</div>
       <h1 className="headline">{selected ? selected.name : "Welcome to JARVIS"}</h1>
       <p className="muted">{selected ? selected.detail : "Your universal business, opportunity and forex command center. Choose a module to explore its planned workflow."}</p>
-      {selected ? <section className="panel section"><span className="pill">Planned workflow</span><h3 style={{marginTop:18}}>Capabilities</h3><ul className="list">{selected.steps.map(s=><li key={s}>{s}</li>)}</ul><p>Coming next: authentication, persistent company data, official-source research and secure integrations.</p></section> :
+      {active === "Universal Business Builder" ? <BusinessBuilder /> : selected ? <section className="panel section"><span className="pill">Planned workflow</span><h3 style={{marginTop:18}}>Capabilities</h3><ul className="list">{selected.steps.map(s=><li key={s}>{s}</li>)}</ul><p>Coming next: authentication, persistent company data, official-source research and secure integrations.</p></section> :
       <div className="grid">{modules.map(m=><article className="panel" key={m.name}><span style={{fontSize:30}} aria-hidden>{m.icon}</span><h3 style={{marginTop:16}}>{m.name}</h3><p>{m.detail}</p><button className="pill" style={{border:0}} onClick={()=>setActive(m.name)}>Explore module</button></article>)}</div>}
       <section className="panel section"><h3>JARVIS Command Interface</h3><p>Command preview only. AI execution will be enabled after secure backend integration.</p>
         <form className="command" onSubmit={e=>{e.preventDefault();setPreview(command.trim()? "Command captured locally (not submitted): "+command : "Enter a command to preview.");}}><input aria-label="JARVIS command" value={command} onChange={e=>setCommand(e.target.value)} placeholder="JARVIS, help me start a new company..." /><button type="submit">Preview</button></form>
