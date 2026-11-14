@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getSupabase } from "../lib/supabase";
 
 const modules = [
   { name: "Universal Business Builder", icon: "🏢", detail: "Form any legal business, research filings, permits, licenses and launch requirements.", steps: ["Research jurisdiction and entity type", "Prepare documents and review requirements", "Request approval before any submission"] },
@@ -10,15 +12,28 @@ const modules = [
   { name: "Executive Assistant", icon: "🧠", detail: "Priorities, scheduling, documents, reminders and approval workflows.", steps: ["Morning briefing", "Draft and review", "Approval and audit history"] },
 ];
 export default function Home() {
+  const router = useRouter();
+  const [authenticated, setAuthenticated] = useState(false);
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) { router.replace("/login"); return; }
+    let alive = true;
+    supabase.auth.getSession().then(({data}) => { if (!alive) return; if (!data.session) router.replace("/login"); else setAuthenticated(true); });
+    const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => { if (!alive) return; if (!session) { setAuthenticated(false); router.replace("/login"); } else setAuthenticated(true); });
+    return () => { alive = false; subscription.unsubscribe(); };
+  }, [router]);
+  async function signOut() { const supabase = getSupabase(); await supabase?.auth.signOut(); router.replace("/login"); }
   const [active, setActive] = useState("Overview");
   const [command, setCommand] = useState("");
   const [preview, setPreview] = useState("");
   const selected = modules.find(m => m.name === active);
+  if (!authenticated) return <main style={{padding:32}}>Checking secure session...</main>;
   return <div className="shell">
     <aside className="sidebar"><div className="brand">J.A.R.V.I.S.</div><div className="sub">EXECUTIVE COMMAND CENTER</div>
       <nav className="nav" aria-label="Main navigation">
         {["Overview", ...modules.map(m => m.name)].map(item => <button key={item} className={active===item?"active":""} onClick={()=>{setActive(item);setPreview("");}}>{item}</button>)}
       </nav>
+      <button onClick={signOut} style={{marginTop:28,background:"transparent",border:"1px solid #36516b",color:"#d6e7f8",borderRadius:8,padding:12,width:"100%"}}>Sign out</button>
     </aside>
     <main className="main">
       <div className="eyebrow">System prototype · integrations not connected</div>
