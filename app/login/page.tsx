@@ -5,7 +5,7 @@ import { getSupabase } from "../../lib/supabase";
 
 export default function Login() {
   const router = useRouter();
-  const [mode, setMode] = useState<"login"|"signup">("login");
+  const mode = "login";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -40,7 +40,7 @@ export default function Login() {
         <button disabled={busy} style={{padding:14,background:"#55c3ff",color:"#061321",border:0,borderRadius:8,fontWeight:700}}>{busy?"Please wait...":mode==="login"?"Sign in":"Register"}</button>
       </form>
       {message && <p role="status" className="muted">{message}</p>}
-      <button style={{background:"transparent",border:0,color:"#82d2ff",marginTop:20}} onClick={()=>{setMode(mode==="login"?"signup":"login");setMessage("");}}>{mode==="login"?"Create an account":"Already have an account? Sign in"}</button>
+
     </div>
   </main>;
 }
